@@ -8,28 +8,40 @@
     "trunk"
   ],
   "timezone": "Europe/Berlin",
-  "schedule": ["before 6am every weekday"],
+  "schedule": [
+    "before 6am every weekday"
+  ],
   "prConcurrentLimit": 7,
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "dependencyDashboard": true,
   "rangeStrategy": "pin",
   "automerge": false,
   "minimumReleaseAge": "3 days",
   "vulnerabilityAlerts": {
-    "labels": ["security", "dependencies"],
+    "labels": [
+      "security",
+      "dependencies"
+    ],
     "automerge": true
   },
   "commitMessagePrefix": "^ E(deps)",
   "packageRules": [
     {
       "groupName": "Java",
-      "matchManagers": ["gradle", "maven"],
+      "matchManagers": [
+        "gradle",
+        "maven"
+      ],
       "groupSlug": "java"
     },
     {
       "groupName": "Ktor",
-      "matchPackagePatterns": ["^io\\.ktor:"],
-      "groupSlug": "ktor"
+      "groupSlug": "ktor",
+      "matchPackageNames": [
+        "/^io\\.ktor:/"
+      ]
     }
   ]
 }
