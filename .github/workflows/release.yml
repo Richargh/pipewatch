@@ -1,6 +1,9 @@
 name: release
 
 on:
+  workflow_run:
+    workflows: [pipeline]
+    types: [completed]
   workflow_dispatch:
     inputs:
       tag:
@@ -14,12 +17,18 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       startsWith(github.event.workflow_run.head_branch, 'v'))
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.event.workflow_run.head_branch }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag }}
+          ref: ${{ inputs.tag || github.event.workflow_run.head_branch }}
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -33,7 +42,7 @@ jobs:
       - name: Build JAR
         run: ./gradlew jar
         env:
-          VERSION: ${{ inputs.tag }}
+          VERSION: ${{ env.RELEASE_TAG }}
 
       - name: Build and publish with Conveyor
         uses: hydraulic-software/conveyor/actions/build@v17.0
@@ -42,13 +51,13 @@ jobs:
           agree_to_license: 1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ inputs.tag }}
+          VERSION: ${{ env.RELEASE_TAG }}
 
       - name: Update release notes
         run: |
-          VERSION="${{ inputs.tag }}"
+          VERSION="${RELEASE_TAG}"
           VERSION="${VERSION#v}"  # Strip 'v' prefix
           sed -n '/^## \['"$VERSION"'\]/,/^## \[/p' CHANGELOG.md | head -n -1 > release-notes.md
-          gh release edit ${{ inputs.tag }} --notes-file release-notes.md
+          gh release edit $RELEASE_TAG --notes-file release-notes.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
