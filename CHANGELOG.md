@@ -7,6 +7,15 @@ and this project will eventually adhere to [Semantic Versioning](https://semver.
 
 ## [unreleased]
 
+### Added 🚀
+
+- Conveyor integration for cross-platform packaging (macOS, Windows, Linux)
+- Separate release workflow with manual trigger
+
+### Changed
+
+- Simplified CI pipeline by moving release logic to dedicated workflow
+
 ### Chore 👨‍💻 👩‍💻
 
 - Add LICENSE

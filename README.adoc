@@ -67,7 +67,7 @@ TIP: For security, only grant the minimum required scope (`read_api`). Never sha
 ./gradlew ktlintFormat
 ----
 
-=== Build Distribution
+=== Build Distribution (Local)
 
 [source,bash]
 ----
@@ -80,3 +80,19 @@ TIP: For security, only grant the minimum required scope (`read_api`). Never sha
 # Current platform
 ./gradlew packageDistributionForCurrentOS
 ----
+
+== Releasing
+
+Releases are built with https://conveyor.hydraulic.dev/[Conveyor] and published to GitHub Releases.
+
+1. Update `CHANGELOG.md` with the new version
+2. Commit and push
+3. Create and push a tag: `git tag v0.2.0 && git push origin v0.2.0`
+4. Go to Actions → *release* workflow → *Run workflow*
+5. Enter the tag (e.g., `v0.2.0`) and run
+
+The workflow builds installers for all platforms (macOS, Windows, Linux) and creates a GitHub release with notes from the changelog.
+
+== Acknowledgements
+
+Packaged with https://conveyor.hydraulic.dev/[Conveyor].
