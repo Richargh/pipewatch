@@ -8,8 +8,8 @@ on:
   pull_request:
 
 concurrency:
-  group: ${{ github.sha }}
-  cancel-in-progress: true
+  group: ${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: ${{ github.ref_type == 'tag' || github.event_name == 'pull_request' }}
 
 env:
   VERSION_SUFFIX: ${{ github.ref_type == 'tag' && format('-{0}', github.ref_name) || '' }}
