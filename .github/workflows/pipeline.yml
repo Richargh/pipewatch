@@ -31,8 +31,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Run ktlint
-        run: ./gradlew ktlintCheck
+      - name: Run tests
+        run: ./gradlew test
 
       - name: Upload ktlint report
         uses: actions/upload-artifact@v4
@@ -41,9 +41,6 @@ jobs:
           name: ktlint-report
           path: build/reports/ktlint/
           retention-days: 7
-
-      - name: Run tests
-        run: ./gradlew test
 
       - name: Upload test results
         uses: actions/upload-artifact@v4

@@ -44,6 +44,7 @@ kotlin {
 
 tasks.test {
     useJUnitPlatform()
+    dependsOn("ktlintCheck")
 }
 
 ktlint {
