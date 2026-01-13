@@ -91,6 +91,7 @@ jobs:
         with:
           name: PipeWatch-macOS${{ env.VERSION_SUFFIX }}
           path: build/compose/binaries/main/dmg/*.dmg
+          if-no-files-found: error
           retention-days: 30
 
   build-windows:
@@ -117,6 +118,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
+      - name: Install WiX Toolset
+        run: choco install wixtoolset -y
+
       - name: Build application
         run: ./gradlew packageMsi
 
@@ -125,6 +129,7 @@ jobs:
         with:
           name: PipeWatch-Windows${{ env.VERSION_SUFFIX }}
           path: build/compose/binaries/main/msi/*.msi
+          if-no-files-found: error
           retention-days: 30
 
   release:
