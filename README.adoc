@@ -12,6 +12,7 @@ A macOS/Windows menu bar application that monitors GitLab CI/CD pipeline status.
 == Requirements
 
 * JDK 17+
+* GitLab Personal Access Token (PAT) with `read_api` scope
 
 === Setup with SDKMAN
 
@@ -22,12 +23,77 @@ sdk env install
 
 This installs (if needed) and activates the Java version from `.sdkmanrc`.
 
+=== Creating a GitLab Personal Access Token
+
+To monitor your pipelines, you need a GitLab Personal Access Token with read access:
+
+1. Log in to your GitLab instance
+2. Click your avatar (top-right corner) → *Edit profile*
+3. In the left sidebar, select *Access Tokens*
+4. Click *Add new token*
+5. Configure your token:
+* *Token name*: e.g., "Pipeline Monitor"
+* *Expiration date*: Set an appropriate expiration (max 365 days)
+* *Scopes*: Select `read_api` (read-only access to the API)
+6. Click *Create personal access token*
+7. *Important*: Copy and save your token immediately — you won't be able to see it again
+
+TIP: For security, only grant the minimum required scope (`read_api`). Never share your token or commit it to version control.
+
+== Configuration
+
+The application is configured via environment variables:
+
+[cols="1,1,3"]
+|===
+|Variable |Required |Description
+
+|`GITLAB_URL`
+|Yes
+|Your GitLab instance URL (e.g., `https://gitlab.com` or `https://gitlab.example.com`)
+
+|`GITLAB_TOKEN`
+|Yes
+|Your Personal Access Token with `read_api` scope
+
+|`GITLAB_PROJECT_ID`
+|Yes
+|The numeric ID of the project to monitor (found on the project's main page)
+
+|`GITLAB_REF`
+|No
+|Branch/tag to filter pipelines (e.g., `main`). If not set, shows the latest pipeline from any branch.
+
+|`GITLAB_REFRESH_INTERVAL`
+|No
+|Polling interval in seconds (default: `60`)
+|===
+
 == Usage
 
 === Run (Development)
 
 [source,bash]
 ----
+# Set required environment variables
+export GITLAB_URL="https://gitlab.com"
+export GITLAB_TOKEN="glpat-xxxxxxxxxxxxxxxxxxxx"
+export GITLAB_PROJECT_ID="12345678"
+
+# Optional: filter by branch
+export GITLAB_REF="main"
+
+# Run the application
+./gradlew run
+----
+
+Or run with inline environment variables:
+
+[source,bash]
+----
+GITLAB_URL="https://gitlab.com" \
+GITLAB_TOKEN="glpat-xxxxxxxxxxxxxxxxxxxx" \
+GITLAB_PROJECT_ID="12345678" \
 ./gradlew run
 ----
 

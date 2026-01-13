@@ -59,6 +59,13 @@ class MenuBuilder {
         // Action items
         items.add(
             MenuItem(
+                type = MenuItemType.OPEN_GITLAB,
+                label = "Open in GitLab",
+            ),
+        )
+
+        items.add(
+            MenuItem(
                 type = MenuItemType.REFRESH,
                 label = "Refresh",
             ),
