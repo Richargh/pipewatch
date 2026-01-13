@@ -10,7 +10,6 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class MultiProjectRepositoryTest {
-
     private lateinit var settings: MapSettings
     private lateinit var repository: MultiProjectRepository
 
@@ -30,11 +29,12 @@ class MultiProjectRepositoryTest {
 
         @Test
         fun `saveToken stores token and can retrieve it`() {
-            val token = TokenConfig(
-                id = "token-1",
-                gitLabUrl = "https://gitlab.example.com",
-                accessToken = "glpat-xxxx"
-            )
+            val token =
+                TokenConfig(
+                    id = "token-1",
+                    gitLabUrl = "https://gitlab.example.com",
+                    accessToken = "glpat-xxxx",
+                )
 
             repository.saveToken(token)
             val tokens = repository.getAllTokens()
@@ -128,14 +128,15 @@ class MultiProjectRepositoryTest {
 
         @Test
         fun `saveProject stores project and can retrieve it`() {
-            val project = ProjectConfig(
-                id = "proj-1",
-                name = "My Project",
-                gitLabUrl = "https://gitlab.example.com",
-                projectPath = "group/project",
-                projectId = 12345L,
-                tokenId = "token-1"
-            )
+            val project =
+                ProjectConfig(
+                    id = "proj-1",
+                    name = "My Project",
+                    gitLabUrl = "https://gitlab.example.com",
+                    projectPath = "group/project",
+                    projectId = 12345L,
+                    tokenId = "token-1",
+                )
 
             repository.saveProject(project)
             val projects = repository.getAllProjects()

@@ -5,11 +5,10 @@ import java.net.URL
 
 data class ParsedGitLabUrl(
     val gitLabUrl: String,
-    val projectPath: String
+    val projectPath: String,
 )
 
 class GitLabUrlParser {
-
     companion object {
         // GitLab-specific path segments that indicate the start of non-project paths
         private val GITLAB_PATH_MARKERS = setOf("-", "api", "users", "groups", "explore", "admin")
@@ -18,11 +17,12 @@ class GitLabUrlParser {
     fun parse(url: String): ParsedGitLabUrl? {
         if (url.isBlank()) return null
 
-        val parsedUrl = try {
-            URL(url.trim())
-        } catch (e: MalformedURLException) {
-            return null
-        }
+        val parsedUrl =
+            try {
+                URL(url.trim())
+            } catch (e: MalformedURLException) {
+                return null
+            }
 
         if (parsedUrl.protocol !in listOf("http", "https")) return null
 
@@ -44,21 +44,22 @@ class GitLabUrlParser {
         // Need at least group/project
         if (projectSegments.size < 2) return null
 
-        val baseUrl = buildString {
-            append(parsedUrl.protocol)
-            append("://")
-            append(parsedUrl.host)
-            if (parsedUrl.port != -1 && parsedUrl.port != parsedUrl.defaultPort) {
-                append(":")
-                append(parsedUrl.port)
+        val baseUrl =
+            buildString {
+                append(parsedUrl.protocol)
+                append("://")
+                append(parsedUrl.host)
+                if (parsedUrl.port != -1 && parsedUrl.port != parsedUrl.defaultPort) {
+                    append(":")
+                    append(parsedUrl.port)
+                }
             }
-        }
 
         val projectPath = projectSegments.joinToString("/")
 
         return ParsedGitLabUrl(
             gitLabUrl = baseUrl,
-            projectPath = projectPath
+            projectPath = projectPath,
         )
     }
 }

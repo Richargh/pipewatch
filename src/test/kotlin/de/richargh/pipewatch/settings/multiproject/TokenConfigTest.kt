@@ -8,16 +8,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class TokenConfigTest {
-
     @Nested
     inner class SerializationTests {
         @Test
         fun `TokenConfig can be serialized to JSON`() {
-            val token = TokenConfig(
-                id = "token-abc",
-                gitLabUrl = "https://gitlab.example.com",
-                accessToken = "glpat-xxxxxxxxxxxx"
-            )
+            val token =
+                TokenConfig(
+                    id = "token-abc",
+                    gitLabUrl = "https://gitlab.example.com",
+                    accessToken = "glpat-xxxxxxxxxxxx",
+                )
 
             val json = Json.encodeToString(token)
 
@@ -29,13 +29,14 @@ class TokenConfigTest {
 
         @Test
         fun `TokenConfig can be deserialized from JSON`() {
-            val json = """
+            val json =
+                """
                 {
                     "id": "token-abc",
                     "gitLabUrl": "https://gitlab.example.com",
                     "accessToken": "glpat-xxxxxxxxxxxx"
                 }
-            """.trimIndent()
+                """.trimIndent()
 
             val token = Json.decodeFromString<TokenConfig>(json)
 
@@ -49,44 +50,48 @@ class TokenConfigTest {
     inner class MatchingTests {
         @Test
         fun `matchesGitLabUrl returns true for exact match`() {
-            val token = TokenConfig(
-                id = "token-abc",
-                gitLabUrl = "https://gitlab.example.com",
-                accessToken = "glpat-xxxxxxxxxxxx"
-            )
+            val token =
+                TokenConfig(
+                    id = "token-abc",
+                    gitLabUrl = "https://gitlab.example.com",
+                    accessToken = "glpat-xxxxxxxxxxxx",
+                )
 
             assert(token.matchesGitLabUrl("https://gitlab.example.com"))
         }
 
         @Test
         fun `matchesGitLabUrl returns true when trailing slash differs`() {
-            val token = TokenConfig(
-                id = "token-abc",
-                gitLabUrl = "https://gitlab.example.com",
-                accessToken = "glpat-xxxxxxxxxxxx"
-            )
+            val token =
+                TokenConfig(
+                    id = "token-abc",
+                    gitLabUrl = "https://gitlab.example.com",
+                    accessToken = "glpat-xxxxxxxxxxxx",
+                )
 
             assert(token.matchesGitLabUrl("https://gitlab.example.com/"))
         }
 
         @Test
         fun `matchesGitLabUrl returns false for different hosts`() {
-            val token = TokenConfig(
-                id = "token-abc",
-                gitLabUrl = "https://gitlab.example.com",
-                accessToken = "glpat-xxxxxxxxxxxx"
-            )
+            val token =
+                TokenConfig(
+                    id = "token-abc",
+                    gitLabUrl = "https://gitlab.example.com",
+                    accessToken = "glpat-xxxxxxxxxxxx",
+                )
 
             assert(!token.matchesGitLabUrl("https://gitlab.other.com"))
         }
 
         @Test
         fun `matchesGitLabUrl is case insensitive for host`() {
-            val token = TokenConfig(
-                id = "token-abc",
-                gitLabUrl = "https://gitlab.example.com",
-                accessToken = "glpat-xxxxxxxxxxxx"
-            )
+            val token =
+                TokenConfig(
+                    id = "token-abc",
+                    gitLabUrl = "https://gitlab.example.com",
+                    accessToken = "glpat-xxxxxxxxxxxx",
+                )
 
             assert(token.matchesGitLabUrl("https://GITLAB.EXAMPLE.COM"))
         }

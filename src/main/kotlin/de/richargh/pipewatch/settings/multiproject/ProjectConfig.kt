@@ -10,20 +10,21 @@ data class ProjectConfig(
     val gitLabUrl: String,
     val projectPath: String,
     val projectId: Long,
-    val tokenId: String
+    val tokenId: String,
 ) {
     val displayName: String
         get() {
-            val host = try {
-                val url = URL(gitLabUrl)
-                if (url.port != -1 && url.port != url.defaultPort) {
-                    "${url.host}:${url.port}"
-                } else {
-                    url.host
+            val host =
+                try {
+                    val url = URL(gitLabUrl)
+                    if (url.port != -1 && url.port != url.defaultPort) {
+                        "${url.host}:${url.port}"
+                    } else {
+                        url.host
+                    }
+                } catch (e: Exception) {
+                    gitLabUrl
                 }
-            } catch (e: Exception) {
-                gitLabUrl
-            }
             return "$name ($host)"
         }
 }

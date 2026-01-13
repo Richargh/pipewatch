@@ -104,9 +104,10 @@ fun MultiProjectSettingsContent(
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
@@ -228,10 +229,11 @@ fun MultiProjectSettingsContent(
                             isTestingConnection = true
                             connectionTestResult = null
                             coroutineScope.launch {
-                                connectionTestResult = testProjectConnection(
-                                    project.gitLabUrl,
-                                    token?.accessToken ?: ""
-                                )
+                                connectionTestResult =
+                                    testProjectConnection(
+                                        project.gitLabUrl,
+                                        token?.accessToken ?: "",
+                                    )
                                 isTestingConnection = false
                             }
                         },
@@ -243,10 +245,11 @@ fun MultiProjectSettingsContent(
                     connectionTestResult?.let { result ->
                         Text(
                             text = result.message,
-                            color = when (result) {
-                                is ConnectionTestResult.Success -> MaterialTheme.colorScheme.primary
-                                is ConnectionTestResult.Failure -> MaterialTheme.colorScheme.error
-                            },
+                            color =
+                                when (result) {
+                                    is ConnectionTestResult.Success -> MaterialTheme.colorScheme.primary
+                                    is ConnectionTestResult.Failure -> MaterialTheme.colorScheme.error
+                                },
                         )
                     }
                 }
@@ -440,9 +443,12 @@ fun AddProjectDialog(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     isError = urlInput.isNotEmpty() && parsedUrl == null,
-                    supportingText = if (urlInput.isNotEmpty() && parsedUrl == null) {
-                        { Text("Invalid GitLab URL") }
-                    } else null,
+                    supportingText =
+                        if (urlInput.isNotEmpty() && parsedUrl == null) {
+                            { Text("Invalid GitLab URL") }
+                        } else {
+                            null
+                        },
                 )
 
                 parsedUrl?.let { parsed ->
@@ -486,10 +492,11 @@ fun AddProjectDialog(
                 validationResult?.let { result ->
                     Text(
                         text = result.message,
-                        color = when (result) {
-                            is ProjectValidationResult.Success -> MaterialTheme.colorScheme.primary
-                            is ProjectValidationResult.Error -> MaterialTheme.colorScheme.error
-                        },
+                        color =
+                            when (result) {
+                                is ProjectValidationResult.Success -> MaterialTheme.colorScheme.primary
+                                is ProjectValidationResult.Error -> MaterialTheme.colorScheme.error
+                            },
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -502,18 +509,20 @@ fun AddProjectDialog(
                         isValidating = true
                         validationResult = null
                         coroutineScope.launch {
-                            val tokenToUse = if (useExistingToken && existingToken != null) {
-                                existingToken!!.accessToken
-                            } else {
-                                accessToken
-                            }
+                            val tokenToUse =
+                                if (useExistingToken && existingToken != null) {
+                                    existingToken!!.accessToken
+                                } else {
+                                    accessToken
+                                }
 
-                            val result = validateAndAddProject(
-                                parsed = parsed,
-                                token = tokenToUse,
-                                existingToken = if (useExistingToken) existingToken else null,
-                                multiProjectRepository = multiProjectRepository,
-                            )
+                            val result =
+                                validateAndAddProject(
+                                    parsed = parsed,
+                                    token = tokenToUse,
+                                    existingToken = if (useExistingToken) existingToken else null,
+                                    multiProjectRepository = multiProjectRepository,
+                                )
 
                             validationResult = result
                             isValidating = false
@@ -524,9 +533,10 @@ fun AddProjectDialog(
                         }
                     }
                 },
-                enabled = parsedUrl != null &&
-                    (useExistingToken && existingToken != null || accessToken.isNotEmpty()) &&
-                    !isValidating,
+                enabled =
+                    parsedUrl != null &&
+                        (useExistingToken && existingToken != null || accessToken.isNotEmpty()) &&
+                        !isValidating,
             ) {
                 Text(if (isValidating) "Validating..." else "Add")
             }
@@ -541,6 +551,7 @@ fun AddProjectDialog(
 
 sealed class ProjectValidationResult(val message: String) {
     class Success(message: String, val project: ProjectConfig) : ProjectValidationResult(message)
+
     class Error(message: String) : ProjectValidationResult(message)
 }
 
@@ -565,33 +576,36 @@ private suspend fun validateAndAddProject(
         }
 
         // Then look up the project
-        val project = client.getProjectByPath(parsed.projectPath)
-            ?: return ProjectValidationResult.Error("Project not found: ${parsed.projectPath}")
+        val project =
+            client.getProjectByPath(parsed.projectPath)
+                ?: return ProjectValidationResult.Error("Project not found: ${parsed.projectPath}")
 
         // Save or reuse token
-        val tokenId = if (existingToken != null) {
-            existingToken.id
-        } else {
-            val newTokenId = UUID.randomUUID().toString()
-            multiProjectRepository.saveToken(
-                TokenConfig(
-                    id = newTokenId,
-                    gitLabUrl = parsed.gitLabUrl,
-                    accessToken = token,
+        val tokenId =
+            if (existingToken != null) {
+                existingToken.id
+            } else {
+                val newTokenId = UUID.randomUUID().toString()
+                multiProjectRepository.saveToken(
+                    TokenConfig(
+                        id = newTokenId,
+                        gitLabUrl = parsed.gitLabUrl,
+                        accessToken = token,
+                    ),
                 )
-            )
-            newTokenId
-        }
+                newTokenId
+            }
 
         // Save project config
-        val projectConfig = ProjectConfig(
-            id = UUID.randomUUID().toString(),
-            name = project.pathWithNamespace,
-            gitLabUrl = parsed.gitLabUrl,
-            projectPath = parsed.projectPath,
-            projectId = project.id,
-            tokenId = tokenId,
-        )
+        val projectConfig =
+            ProjectConfig(
+                id = UUID.randomUUID().toString(),
+                name = project.pathWithNamespace,
+                gitLabUrl = parsed.gitLabUrl,
+                projectPath = parsed.projectPath,
+                projectId = project.id,
+                tokenId = tokenId,
+            )
         multiProjectRepository.saveProject(projectConfig)
 
         ProjectValidationResult.Success("Project added successfully", projectConfig)

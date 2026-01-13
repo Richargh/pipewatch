@@ -8,19 +8,19 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 class ProjectConfigTest {
-
     @Nested
     inner class SerializationTests {
         @Test
         fun `ProjectConfig can be serialized to JSON`() {
-            val config = ProjectConfig(
-                id = "proj-123",
-                name = "My Project",
-                gitLabUrl = "https://gitlab.example.com",
-                projectPath = "group/project",
-                projectId = 12345L,
-                tokenId = "token-abc"
-            )
+            val config =
+                ProjectConfig(
+                    id = "proj-123",
+                    name = "My Project",
+                    gitLabUrl = "https://gitlab.example.com",
+                    projectPath = "group/project",
+                    projectId = 12345L,
+                    tokenId = "token-abc",
+                )
 
             val json = Json.encodeToString(config)
 
@@ -35,7 +35,8 @@ class ProjectConfigTest {
 
         @Test
         fun `ProjectConfig can be deserialized from JSON`() {
-            val json = """
+            val json =
+                """
                 {
                     "id": "proj-123",
                     "name": "My Project",
@@ -44,7 +45,7 @@ class ProjectConfigTest {
                     "projectId": 12345,
                     "tokenId": "token-abc"
                 }
-            """.trimIndent()
+                """.trimIndent()
 
             val config = Json.decodeFromString<ProjectConfig>(json)
 
@@ -61,28 +62,30 @@ class ProjectConfigTest {
     inner class DisplayTests {
         @Test
         fun `displayName returns project name with GitLab host`() {
-            val config = ProjectConfig(
-                id = "proj-123",
-                name = "My Project",
-                gitLabUrl = "https://gitlab.example.com",
-                projectPath = "group/project",
-                projectId = 12345L,
-                tokenId = "token-abc"
-            )
+            val config =
+                ProjectConfig(
+                    id = "proj-123",
+                    name = "My Project",
+                    gitLabUrl = "https://gitlab.example.com",
+                    projectPath = "group/project",
+                    projectId = 12345L,
+                    tokenId = "token-abc",
+                )
 
             assertEquals("My Project (gitlab.example.com)", config.displayName)
         }
 
         @Test
         fun `displayName handles URL with port`() {
-            val config = ProjectConfig(
-                id = "proj-123",
-                name = "My Project",
-                gitLabUrl = "https://gitlab.example.com:8443",
-                projectPath = "group/project",
-                projectId = 12345L,
-                tokenId = "token-abc"
-            )
+            val config =
+                ProjectConfig(
+                    id = "proj-123",
+                    name = "My Project",
+                    gitLabUrl = "https://gitlab.example.com:8443",
+                    projectPath = "group/project",
+                    projectId = 12345L,
+                    tokenId = "token-abc",
+                )
 
             assertEquals("My Project (gitlab.example.com:8443)", config.displayName)
         }

@@ -23,7 +23,6 @@ import de.richargh.pipewatch.settings.multiproject.MultiProjectRepository
 import de.richargh.pipewatch.settings.multiproject.MultiProjectSettingsWindow
 import de.richargh.pipewatch.settings.multiproject.ProjectConfig
 import de.richargh.pipewatch.settings.multiproject.TokenConfig
-import java.util.UUID
 import de.richargh.pipewatch.status.app.api.PipelineStatus
 import de.richargh.pipewatch.viewmodel.PipelineViewModel
 import de.richargh.pipewatch.widget.tray.TrayIconManager
@@ -31,6 +30,7 @@ import de.richargh.pipewatch.widgets.menu.MenuActionHandler
 import de.richargh.pipewatch.widgets.menu.MenuBuilder
 import de.richargh.pipewatch.widgets.menu.MenuItemType
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 fun main() =
     application {
@@ -283,7 +283,7 @@ private fun migrateFromLegacySettings(
             id = tokenId,
             gitLabUrl = gitLabUrl,
             accessToken = accessToken,
-        )
+        ),
     )
 
     // Create project config
@@ -293,10 +293,11 @@ private fun migrateFromLegacySettings(
             id = projectConfigId,
             name = projectName,
             gitLabUrl = gitLabUrl,
-            projectPath = projectName,  // Use name as path for legacy migration
+            // Use name as path for legacy migration
+            projectPath = projectName,
             projectId = projectId,
             tokenId = tokenId,
-        )
+        ),
     )
 
     // Set as active project

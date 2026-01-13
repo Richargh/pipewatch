@@ -7,7 +7,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class GitLabUrlParserTest {
-
     private val parser = GitLabUrlParser()
 
     @Nested

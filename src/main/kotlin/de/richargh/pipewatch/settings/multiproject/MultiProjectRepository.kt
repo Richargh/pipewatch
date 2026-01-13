@@ -5,7 +5,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class MultiProjectRepository(
-    private val settings: Settings = Settings()
+    private val settings: Settings = Settings(),
 ) {
     private val json = Json { ignoreUnknownKeys = true }
 

@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class TokenConfig(
     val id: String,
     val gitLabUrl: String,
-    val accessToken: String
+    val accessToken: String,
 ) {
     fun matchesGitLabUrl(url: String): Boolean {
         val normalizedStored = gitLabUrl.trimEnd('/').lowercase()
