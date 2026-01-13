@@ -7,6 +7,8 @@ and this project will eventually adhere to [Semantic Versioning](https://semver.
 
 ## [unreleased]
 
+## [0.1.7] - 2026-01-13
+
 ### Added 🚀
 
 - Conveyor integration for cross-platform packaging (macOS, Windows, Linux)
