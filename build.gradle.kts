@@ -4,16 +4,31 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.conveyor)
     alias(libs.plugins.ktlint)
 }
 
 group = "de.richargh.pipewatch"
-version = "0.1.0"
+version = System.getenv("VERSION")?.trimStart('v') ?: "SNAPSHOT"
+
+// Workaround for Compose Desktop skiko variant resolution
+// https://github.com/JetBrains/compose-jb/issues/1404
+configurations.all {
+    attributes {
+        attribute(Attribute.of("ui", String::class.java), "awt")
+    }
+}
 
 dependencies {
     // Compose Multiplatform (includes built-in Tray support)
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
+
+    // Conveyor cross-platform dependencies (configurations created by Conveyor plugin)
+    "macAmd64"(compose.desktop.macos_x64)
+    "macAarch64"(compose.desktop.macos_arm64)
+    "windowsAmd64"(compose.desktop.windows_x64)
+    "linuxAmd64"(compose.desktop.linux_x64)
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
