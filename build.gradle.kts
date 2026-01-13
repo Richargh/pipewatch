@@ -7,8 +7,8 @@ plugins {
     alias(libs.plugins.ktlint)
 }
 
-group = "com.gitlab.pipeline.monitor"
-version = "1.0.0"
+group = "de.richargh.pipewatch"
+version = "0.1.0"
 
 dependencies {
     // Compose Multiplatform (includes built-in Tray support)
@@ -55,7 +55,7 @@ ktlint {
 
 compose.desktop {
     application {
-        mainClass = "de.richargh.pipeline.monitor.MainKt"
+        mainClass = "de.richargh.pipewatch.MainKt"
 
         // Hide dock icon during development on macOS
         jvmArgs += "-Dapple.awt.UIElement=true"
