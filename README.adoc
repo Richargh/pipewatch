@@ -1,0 +1,64 @@
+= GitLab Pipeline Monitor
+
+A macOS/Windows menu bar application that monitors GitLab CI/CD pipeline status.
+
+== Features
+
+* System tray icon showing pipeline status (green/red/yellow/gray)
+* Quick access menu with pipeline details
+* Desktop notifications on pipeline failures (planned)
+* Configurable refresh interval (planned)
+
+== Requirements
+
+* JDK 17+
+
+=== Setup with SDKMAN
+
+[source,bash]
+----
+sdk env install
+----
+
+This installs (if needed) and activates the Java version from `.sdkmanrc`.
+
+== Usage
+
+=== Run (Development)
+
+[source,bash]
+----
+./gradlew run
+----
+
+=== Test
+
+[source,bash]
+----
+./gradlew test
+----
+
+=== Lint
+
+[source,bash]
+----
+# Check for issues
+./gradlew ktlintCheck
+
+# Auto-fix issues
+./gradlew ktlintFormat
+----
+
+=== Build Distribution
+
+[source,bash]
+----
+# macOS DMG
+./gradlew packageDmg
+
+# Windows MSI
+./gradlew packageMsi
+
+# Current platform
+./gradlew packageDistributionForCurrentOS
+----
