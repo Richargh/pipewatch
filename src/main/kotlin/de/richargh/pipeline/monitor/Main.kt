@@ -12,9 +12,18 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.window.Tray
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberTrayState
-import de.richargh.pipeline.monitor.config.AppConfig
 import de.richargh.pipeline.monitor.gitlab.api.GitLabClient
+import de.richargh.pipeline.monitor.gitlab.api.Job
+import de.richargh.pipeline.monitor.notification.ComposeNotificationService
+import de.richargh.pipeline.monitor.notification.NotificationBuilder
+import de.richargh.pipeline.monitor.notification.PipelineStateTracker
 import de.richargh.pipeline.monitor.polling.PollingService
+import de.richargh.pipeline.monitor.settings.SettingsRepository
+import de.richargh.pipeline.monitor.settings.multiproject.MultiProjectRepository
+import de.richargh.pipeline.monitor.settings.multiproject.MultiProjectSettingsWindow
+import de.richargh.pipeline.monitor.settings.multiproject.ProjectConfig
+import de.richargh.pipeline.monitor.settings.multiproject.TokenConfig
+import java.util.UUID
 import de.richargh.pipeline.monitor.status.app.api.PipelineStatus
 import de.richargh.pipeline.monitor.viewmodel.PipelineViewModel
 import de.richargh.pipeline.monitor.widget.tray.TrayIconManager
@@ -22,51 +31,60 @@ import de.richargh.pipeline.monitor.widgets.menu.MenuActionHandler
 import de.richargh.pipeline.monitor.widgets.menu.MenuBuilder
 import de.richargh.pipeline.monitor.widgets.menu.MenuItemType
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.seconds
 
 fun main() =
     application {
         val trayState = rememberTrayState()
         val scope = rememberCoroutineScope()
 
-        val appConfig = remember { AppConfig.fromEnvironment() }
-        var configError by remember { mutableStateOf<String?>(null) }
+        val settingsRepository = remember { SettingsRepository() }
+        val multiProjectRepository = remember { MultiProjectRepository() }
 
-        val gitLabClient =
-            remember {
-                if (appConfig.isConfigured) {
-                    GitLabClient(appConfig.gitLabConfig!!)
-                } else {
-                    configError = "Not configured. Set GITLAB_URL, GITLAB_TOKEN, and GITLAB_PROJECT_ID environment variables."
-                    null
-                }
-            }
+        // Migrate legacy settings if needed
+        LaunchedEffect(Unit) {
+            migrateFromLegacySettings(settingsRepository, multiProjectRepository)
+        }
 
-        val viewModel =
-            remember {
-                if (gitLabClient != null && appConfig.projectId != null) {
-                    PipelineViewModel(gitLabClient, appConfig.projectId, appConfig.ref)
-                } else {
-                    null
-                }
-            }
+        var gitLabClient by remember {
+            mutableStateOf(createGitLabClient(settingsRepository))
+        }
+
+        var viewModel by remember {
+            mutableStateOf(createViewModel(gitLabClient, settingsRepository))
+        }
 
         val pollingService =
             remember {
-                PollingService(interval = appConfig.refreshIntervalSeconds.seconds)
+                PollingService(interval = settingsRepository.refreshInterval.duration)
             }
 
         val pipelineStatus by viewModel?.pipelineStatus?.collectAsState()
             ?: remember { mutableStateOf(PipelineStatus.UNKNOWN) }
         val currentPipeline by viewModel?.currentPipeline?.collectAsState()
             ?: remember { mutableStateOf(null) }
+        val failedJobsByStage by viewModel?.failedJobsByStage?.collectAsState()
+            ?: remember { mutableStateOf<Map<String, List<Job>>>(emptyMap()) }
 
         val trayIconManager = remember { TrayIconManager() }
         val menuBuilder = remember { MenuBuilder() }
         val app = remember { Application() }
+        val stateTracker = remember { PipelineStateTracker() }
+        val notificationService =
+            remember {
+                ComposeNotificationService(
+                    onNotificationClick = { url -> url?.let { openInBrowser(it) } },
+                )
+            }
+
+        var showSettingsWindow by remember { mutableStateOf(false) }
+
+        val isConfigured = settingsRepository.isConfigured
+
+        // Update notification service settings
+        notificationService.notificationsEnabled = settingsRepository.notificationsEnabled
 
         val menuActionHandler =
-            remember {
+            remember(viewModel, currentPipeline) {
                 MenuActionHandler(
                     onQuit = {
                         pollingService.stop()
@@ -80,16 +98,11 @@ fun main() =
                         }
                     },
                     onSettings = {
-                        // TODO: Implement settings window in Phase 4
-                        println("Settings triggered - configure via environment variables for now")
+                        showSettingsWindow = true
                     },
                     onOpenGitLab = {
                         currentPipeline?.webUrl?.let { url ->
-                            try {
-                                java.awt.Desktop.getDesktop().browse(java.net.URI(url))
-                            } catch (e: Exception) {
-                                println("Failed to open browser: ${e.message}")
-                            }
+                            openInBrowser(url)
                         }
                     },
                 )
@@ -100,13 +113,29 @@ fun main() =
 
             if (viewModel != null) {
                 pollingService.start {
-                    viewModel.refresh()
+                    viewModel?.refresh()
                 }
+            } else if (!isConfigured) {
+                // Show settings on first run if not configured
+                showSettingsWindow = true
             }
         }
 
         LaunchedEffect(pipelineStatus) {
             trayIconManager.setStatus(pipelineStatus)
+
+            // Check for failure and send notification
+            val failureInfo = stateTracker.updateAndCheckForFailure(pipelineStatus, currentPipeline)
+            if (failureInfo != null && failureInfo.isNewFailure) {
+                val projectName = settingsRepository.selectedProjectName ?: "Unknown"
+                val notification =
+                    NotificationBuilder.buildFailureNotification(
+                        failureInfo.pipeline,
+                        projectName,
+                        failedJobsByStage,
+                    )
+                notificationService.sendNotification(notification)
+            }
         }
 
         val icon =
@@ -117,27 +146,56 @@ fun main() =
         val tooltipText =
             buildString {
                 append("GitLab Pipeline Monitor")
-                if (configError != null) {
-                    append(" - $configError")
+                if (!isConfigured) {
+                    append(" - Not configured")
                 } else {
                     append(" - ${pipelineStatus.displayName}")
                     currentPipeline?.let { append(" (${it.ref})") }
                 }
             }
 
+        if (showSettingsWindow) {
+            MultiProjectSettingsWindow(
+                settingsRepository = settingsRepository,
+                multiProjectRepository = multiProjectRepository,
+                onClose = { showSettingsWindow = false },
+                onSave = {
+                    // Recreate client and view model with new settings
+                    gitLabClient?.close()
+                    gitLabClient = createGitLabClient(settingsRepository)
+                    viewModel = createViewModel(gitLabClient, settingsRepository)
+
+                    // Update polling interval
+                    pollingService.setInterval(settingsRepository.refreshInterval.duration)
+
+                    // Start polling if we now have a valid configuration
+                    if (viewModel != null) {
+                        scope.launch {
+                            pollingService.stop()
+                            pollingService.start {
+                                viewModel?.refresh()
+                            }
+                        }
+                    }
+                },
+            )
+        }
+
         Tray(
             state = trayState,
             icon = icon,
             tooltip = tooltipText,
             menu = {
-                if (configError != null) {
-                    Item("⚠️ $configError", enabled = false, onClick = {})
+                if (!isConfigured) {
+                    Item("Not configured - click Settings to configure", enabled = false, onClick = {})
                     Separator()
                 }
 
-                // Update menu builder state here to ensure recomposition
+                // Update menu builder state
                 menuBuilder.setPipelineStatus(pipelineStatus)
-                currentPipeline?.let { menuBuilder.setLastUpdated("${it.ref} #${it.iid}") }
+                menuBuilder.setPipeline(currentPipeline)
+                menuBuilder.setProjectName(settingsRepository.selectedProjectName)
+                menuBuilder.setFailedJobsByStage(failedJobsByStage)
 
                 val menuItems = menuBuilder.buildMenuItems()
 
@@ -145,6 +203,13 @@ fun main() =
                     when (item.type) {
                         MenuItemType.SEPARATOR -> Separator()
                         MenuItemType.STATUS -> Item(item.label, enabled = false, onClick = {})
+                        MenuItemType.FAILED_STAGE_HEADER -> Item(item.label, enabled = false, onClick = {})
+                        MenuItemType.FAILED_JOB ->
+                            Item(
+                                item.label,
+                                enabled = item.url != null,
+                                onClick = { item.url?.let { openInBrowser(it) } },
+                            )
                         MenuItemType.REFRESH ->
                             Item(
                                 item.label,
@@ -155,8 +220,8 @@ fun main() =
                         MenuItemType.OPEN_GITLAB ->
                             Item(
                                 item.label,
-                                enabled = currentPipeline?.webUrl != null,
-                                onClick = { menuActionHandler.handleOpenGitLab() },
+                                enabled = item.url != null,
+                                onClick = { item.url?.let { openInBrowser(it) } },
                             )
                         MenuItemType.QUIT -> Item(item.label, onClick = { menuActionHandler.handleQuit() })
                     }
@@ -164,3 +229,76 @@ fun main() =
             },
         )
     }
+
+private fun createGitLabClient(settingsRepository: SettingsRepository): GitLabClient? {
+    return if (settingsRepository.isConfigured) {
+        GitLabClient(
+            baseUrl = settingsRepository.gitLabUrl!!,
+            accessToken = settingsRepository.accessToken!!,
+        )
+    } else {
+        null
+    }
+}
+
+private fun createViewModel(
+    client: GitLabClient?,
+    settingsRepository: SettingsRepository,
+): PipelineViewModel? {
+    if (client == null) return null
+
+    val projectId = settingsRepository.selectedProjectId ?: return null
+    val ref = settingsRepository.branchFilter?.ifBlank { null }
+
+    return PipelineViewModel(client, projectId, ref)
+}
+
+private fun openInBrowser(url: String) {
+    try {
+        java.awt.Desktop.getDesktop().browse(java.net.URI(url))
+    } catch (e: Exception) {
+        println("Failed to open browser: ${e.message}")
+    }
+}
+
+private fun migrateFromLegacySettings(
+    settingsRepository: SettingsRepository,
+    multiProjectRepository: MultiProjectRepository,
+) {
+    // Check if already migrated (projects exist in multi-project repo)
+    if (multiProjectRepository.getAllProjects().isNotEmpty()) {
+        return
+    }
+
+    // Check if legacy settings exist
+    val gitLabUrl = settingsRepository.gitLabUrl ?: return
+    val accessToken = settingsRepository.accessToken ?: return
+    val projectId = settingsRepository.selectedProjectId ?: return
+    val projectName = settingsRepository.selectedProjectName ?: return
+
+    // Create token
+    val tokenId = UUID.randomUUID().toString()
+    multiProjectRepository.saveToken(
+        TokenConfig(
+            id = tokenId,
+            gitLabUrl = gitLabUrl,
+            accessToken = accessToken,
+        )
+    )
+
+    // Create project config
+    val projectConfigId = UUID.randomUUID().toString()
+    multiProjectRepository.saveProject(
+        ProjectConfig(
+            id = projectConfigId,
+            name = projectName,
+            gitLabUrl = gitLabUrl,
+            projectPath = projectName,  // Use name as path for legacy migration
+            projectId = projectId,
+            tokenId = tokenId,
+        )
+    )
+
+    // Set as active project
+    multiProjectRepository.activeProjectId = projectConfigId
+}

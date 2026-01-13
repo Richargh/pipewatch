@@ -27,11 +27,15 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
 
+    // Settings persistence
+    implementation(libs.multiplatform.settings)
+
     // Testing
     testImplementation(kotlin("test"))
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.multiplatform.settings.test)
 }
 
 kotlin {
