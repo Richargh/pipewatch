@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": ["before 6am every weekday"],
+  "prConcurrentLimit": 5,
+  "labels": ["dependencies"],
+  "dependencyDashboard": true,
+  "commitMessagePrefix": "^ E(deps)",
+  "packageRules": [
+    {
+      "groupName": "Java",
+      "matchManagers": ["gradle", "maven"],
+      "groupSlug": "java"
+    },
+    {
+      "groupName": "Ktor",
+      "matchPackagePatterns": ["^io\\.ktor:"],
+      "groupSlug": "ktor"
+    }
+  ]
+}
