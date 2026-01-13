@@ -11,7 +11,7 @@ Currently just for GitLab CI.
 
 == Requirements
 
-* JDK 17+
+* JDK 21+
 * GitLab Personal Access Token (PAT) with `read_api` scope
 
 === Setup with SDKMAN
