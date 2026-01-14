@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.3.0"
-compose = "1.9.3"
+compose = "1.10.0"
 conveyor = "1.12"
 ktlint-gradle = "14.0.1"
 ktlint-runtime = "1.1.1"
