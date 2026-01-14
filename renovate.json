@@ -29,12 +29,9 @@
   "commitMessagePrefix": "^ E(deps)",
   "packageRules": [
     {
-      "groupName": "Java",
-      "matchManagers": [
-        "gradle",
-        "maven"
-      ],
-      "groupSlug": "java"
+      "groupName": "JDK",
+      "matchDatasources": ["java-version"],
+      "groupSlug": "jdk"
     },
     {
       "groupName": "Ktor",
