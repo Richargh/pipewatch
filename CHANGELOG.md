@@ -7,6 +7,27 @@ and this project will eventually adhere to [Semantic Versioning](https://semver.
 
 ## [unreleased]
 
+## [0.1.9] - 2026-01-14
+
+### Changed
+
+- Update Kotlin and Compose dependencies
+
+### Chore 👨‍💻 👩‍💻
+
+- Renovate: Group JDK updates
+
+## [0.1.8] - 2026-01-14
+
+### Changed
+
+- Update Ktor to v2.3.13
+
+### Chore 👨‍💻 👩‍💻
+
+- GH Actions: Separate triggers for pipeline and release
+- GH Actions: Run release after pipeline
+
 ## [0.1.7] - 2026-01-13
 
 ### Added 🚀
