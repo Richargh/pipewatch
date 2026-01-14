@@ -180,4 +180,17 @@ class MenuBuilderTest {
 
         Assertions.assertEquals("https://gitlab.example.com/pipeline/12345", openItem?.url)
     }
+
+    @Test
+    fun `menu includes version item before quit`() {
+        val menuBuilder = MenuBuilder(appVersion = "1.2.3")
+        val items = menuBuilder.buildMenuItems()
+
+        val quitIndex = items.indexOfFirst { it.type == MenuItemType.QUIT }
+        val versionIndex = items.indexOfFirst { it.type == MenuItemType.VERSION }
+
+        Assertions.assertTrue(versionIndex >= 0, "Version item should exist")
+        Assertions.assertTrue(versionIndex < quitIndex, "Version should come before Quit")
+        Assertions.assertEquals("Version 1.2.3", items[versionIndex].label)
+    }
 }
