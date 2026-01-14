@@ -45,7 +45,7 @@ jobs:
           VERSION: ${{ env.RELEASE_TAG }}
 
       - name: Build and publish with Conveyor
-        uses: hydraulic-software/conveyor/actions/build@v17.0
+        uses: hydraulic-software/conveyor/actions/build@v21.0
         with:
           command: make copied-site
           agree_to_license: 1
