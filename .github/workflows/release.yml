@@ -49,6 +49,7 @@ jobs:
         with:
           command: make copied-site
           agree_to_license: 1
+          signing_key: ${{ secrets.SIGNING_KEY }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ env.RELEASE_TAG }}
