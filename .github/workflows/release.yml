@@ -59,6 +59,6 @@ jobs:
           VERSION="${RELEASE_TAG}"
           VERSION="${VERSION#v}"  # Strip 'v' prefix
           sed -n '/^## \['"$VERSION"'\]/,/^## \[/p' CHANGELOG.md | head -n -1 > release-notes.md
-          gh release edit $RELEASE_TAG --notes-file release-notes.md
+          gh release edit "$VERSION" --notes-file release-notes.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
