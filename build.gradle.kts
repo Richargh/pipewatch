@@ -2,6 +2,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.conveyor)
@@ -23,6 +24,7 @@ dependencies {
     // Compose Multiplatform (includes built-in Tray support)
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
+    implementation(compose.materialIconsExtended)
 
     // Conveyor cross-platform dependencies (configurations created by Conveyor plugin)
     "macAmd64"(compose.desktop.macos_x64)
