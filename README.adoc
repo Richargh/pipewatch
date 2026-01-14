@@ -9,6 +9,30 @@ Currently just for GitLab CI.
 * Quick access menu with pipeline details
 * Configurable refresh interval
 
+== Installation
+
+Download the latest release from https://github.com/Richargh/pipewatch/releases[GitHub Releases].
+
+Releases bundle the JDK, so no separate Java installation is required. This is provided by https://conveyor.hydraulic.dev/[Conveyor] (see <<Releasing>>).
+
+=== Windows
+
+* `pipewatch.exe` — Recommended installer (installs certificate + app)
+* `pipewatch-<version>.x64.msix` — MSIX package (requires certificate installed first)
+* `pipewatch-<version>-windows-amd64.zip` — Portable ZIP
+
+=== macOS
+
+* `pipewatch-<version>-mac-aarch64.zip` — Apple Silicon (M1-Mx)
+* `pipewatch-<version>-mac-amd64.zip` — Intel Macs
+
+=== Linux
+
+* `pipewatch_<version>_amd64.deb` — Debian/Ubuntu package
+* `pipewatch-<version>-linux-amd64.tar.gz` — Tarball
+
+NOTE: The release also contains files for auto-updates and self-signed certificate installation (`.appinstaller`, `.crt`, `.rss`, `Packages`, etc.). These are used for auto-updates and don't need to be downloaded manually.
+
 == Requirements
 
 * JDK 21+
