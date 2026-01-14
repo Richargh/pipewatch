@@ -7,6 +7,26 @@ and this project will eventually adhere to [Semantic Versioning](https://semver.
 
 ## [unreleased]
 
+## [0.1.12] - 2026-01-14
+
+### Added 🚀
+
+- Version display in system tray menu
+
+### Documentation
+
+- Add installation instructions to README
+
+### Chore 👨‍💻 👩‍💻
+
+- Update kotlinx-serialization-json to v1.9.0
+- Update actions/upload-artifact to v6
+- Update ktlint to v12.3.0
+- Update junit-jupiter to v6
+- Update actions/setup-java to v5
+- Update actions/checkout to v6
+- Update Kotlin and compose 
+
 ## [0.1.11] - 2026-01-14
 
 ### Fixed
