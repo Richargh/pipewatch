@@ -14,7 +14,7 @@ version = System.getenv("VERSION")?.trimStart('v') ?: "SNAPSHOT"
 
 // Workaround for Compose Desktop skiko variant resolution
 // https://github.com/JetBrains/compose-jb/issues/1404
-configurations.all {
+configurations.matching { it.isCanBeResolved }.configureEach {
     attributes {
         attribute(Attribute.of("ui", String::class.java), "awt")
     }
