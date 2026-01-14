@@ -11,6 +11,7 @@ enum class MenuItemType {
     REFRESH,
     SETTINGS,
     OPEN_GITLAB,
+    VERSION,
     QUIT,
     FAILED_STAGE_HEADER,
     FAILED_JOB,
@@ -31,7 +32,7 @@ data class PipelineMenuState(
     val failedJobsByStage: Map<String, List<Job>> = emptyMap(),
 )
 
-class MenuBuilder {
+class MenuBuilder(private val appVersion: String = "dev") {
     private var menuState: PipelineMenuState = PipelineMenuState()
 
     fun setPipelineStatus(status: PipelineStatus) {
@@ -143,6 +144,14 @@ class MenuBuilder {
         )
 
         items.add(MenuItem(type = MenuItemType.SEPARATOR))
+
+        items.add(
+            MenuItem(
+                type = MenuItemType.VERSION,
+                label = "Version $appVersion",
+                enabled = false,
+            ),
+        )
 
         items.add(
             MenuItem(

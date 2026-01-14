@@ -64,6 +64,14 @@ tasks.test {
     dependsOn("ktlintCheck")
 }
 
+tasks.withType<Jar> {
+    manifest {
+        attributes(
+            "Implementation-Version" to project.version,
+        )
+    }
+}
+
 ktlint {
     version.set(libs.versions.ktlint.runtime)
     android.set(false)

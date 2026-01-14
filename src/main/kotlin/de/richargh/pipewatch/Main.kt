@@ -37,6 +37,7 @@ fun main() =
         val trayState = rememberTrayState()
         val scope = rememberCoroutineScope()
 
+        val appConfig = remember { AppConfig() }
         val settingsRepository = remember { SettingsRepository() }
         val multiProjectRepository = remember { MultiProjectRepository() }
 
@@ -66,7 +67,7 @@ fun main() =
             ?: remember { mutableStateOf<Map<String, List<Job>>>(emptyMap()) }
 
         val trayIconManager = remember { TrayIconManager() }
-        val menuBuilder = remember { MenuBuilder() }
+        val menuBuilder = remember { MenuBuilder(appVersion = appConfig.version) }
         val app = remember { Application() }
         val stateTracker = remember { PipelineStateTracker() }
         val notificationService =
@@ -223,6 +224,7 @@ fun main() =
                                 enabled = item.url != null,
                                 onClick = { item.url?.let { openInBrowser(it) } },
                             )
+                        MenuItemType.VERSION -> Item(item.label, enabled = false, onClick = {})
                         MenuItemType.QUIT -> Item(item.label, onClick = { menuActionHandler.handleQuit() })
                     }
                 }
