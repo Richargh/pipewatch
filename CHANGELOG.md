@@ -7,6 +7,18 @@ and this project will eventually adhere to [Semantic Versioning](https://semver.
 
 ## [unreleased]
 
+## [0.1.11] - 2026-01-14
+
+### Fixed
+
+- Fix release workflow triggers (release notes)
+
+## [0.1.10] - 2026-01-14
+
+### Fixed
+
+- Fix release workflow triggers (conveyor version)
+
 ## [0.1.9] - 2026-01-14
 
 ### Changed
