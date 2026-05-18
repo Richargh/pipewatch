@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.3.0"
+kotlin = "2.3.21"
 compose = "1.10.0"
 conveyor = "1.12"
 ktlint-gradle = "14.0.1"
